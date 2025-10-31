@@ -23,7 +23,7 @@ Este projeto é um sistema web para gerenciamento de formações de professores 
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/seu-repositorio.git
+   git clone https://github.com/oAdrino/sistema_certificados.git
    cd seu-repositorio
 
 2. Crie e ative o ambiente virtual:

@@ -8,7 +8,7 @@ class Professor(db.Model):
     __tablename__ = 'professores'
     id_professores = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
-    cpf = db.Column(db.String(11), nullable=False)
+    cpf = db.Column(db.String(14), nullable=False)
     num_contrato = db.Column(db.String(20), nullable=False)
     lotacao = db.Column(db.String(100), nullable=False)
     cargo_funcao = db.Column(db.String(100), nullable=False)

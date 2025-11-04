@@ -2,7 +2,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 import os
 
-def gerar_certificado_pdf(nome_professor, nome_formacao, carga_horaria, caminho_arquivo):
+def gerar_certificado_pdf(nome_professor, nome_curso, carga_horaria, caminho_arquivo):
     c = canvas.Canvas(caminho_arquivo, pagesize=A4)
     largura, altura = A4
 
@@ -13,7 +13,7 @@ def gerar_certificado_pdf(nome_professor, nome_formacao, carga_horaria, caminho_
     # Texto do certificado
 
     c.setFont("Helvetica", 14)
-    texto = f"Certificamos que {nome_professor} concluiu a formação \"{nome_formacao}\" com carga horária de {carga_horaria} horas."
+    texto = f"Certificamos que {nome_professor} concluiu a formação \"{nome_curso}\" com carga horária de {carga_horaria} horas."
     c.drawCentredString(largura / 2, altura - 150, texto)
 
     # Assinatura e logo

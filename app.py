@@ -1,7 +1,7 @@
 from flask import Flask
 from routes.professores import professores_bp
 from models import db
-from routes.formacoes import formacoes_bp
+from routes.cursos import cursos_bp
 from routes.certificados import certificados_bp
 from flask_sqlalchemy import SQLAlchemy 
 
@@ -11,7 +11,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 app.register_blueprint(professores_bp)
-app.register_blueprint(formacoes_bp)
+app.register_blueprint(cursos_bp)
 app.register_blueprint(certificados_bp)
 
 if __name__ == '__main__':

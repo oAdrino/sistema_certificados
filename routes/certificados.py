@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Certificados, Professor, Formacoes
+from models import db, Certificados, Professor, Cursos
 from utils.pdf_generator import gerar_certificado_pdf
 from flask import send_file
 import os
@@ -14,17 +14,17 @@ def criar_certificado():
 
     #Verificando se o professor existe
     professor = Professor.query.get(dados['id_professores'])
-    formacao = Formacoes.query.get(dados['id_formacoes'])
+    curso = Cursos.query.get(dados['id_cursos'])
 
-    if not professor or not formacao:
-        return jsonify({'error': 'Professor ou Formação não encontrado'}), 404
+    if not professor or not curso:
+        return jsonify({'error': 'Professor ou Curso não encontrado'}), 404
     
     novo_certificado = Certificados(
         id_professores=dados['id_professores'], # pyright: ignore[reportCallIssue]
-        id_formacoes=dados['id_formacoes'], # pyright: ignore[reportCallIssue]
+        id_cursos=dados['id_cursos'], # pyright: ignore[reportCallIssue]
         status=dados.get('status', 'pendente'), # type: ignore
         certificado_url=dados.get('certificado_url', ''), # pyright: ignore[reportCallIssue]
-        carga_horaria_total=formacao.carga_horaria # pyright: ignore[reportCallIssue]
+        carga_horaria_total=curso.carga_horaria # pyright: ignore[reportCallIssue]
     )
 
     db.session.add(novo_certificado)
@@ -32,15 +32,15 @@ def criar_certificado():
 
         #Gerando PDF do certificado
     nome_professor = professor.nome
-    nome_formacao = formacao.nome_formacao
-    carga_horaria = formacao.carga_horaria
+    nome_curso = curso.nome_curso
+    carga_horaria = curso.carga_horaria
 
     # Caminho onde o PDF será salvo
 
-    caminho_arquivo = f"certificados/{nome_professor.replace(' ', '_')}_{nome_formacao.replace(' ', '_')}.pdf"
+    caminho_arquivo = f"certificados/{nome_professor.replace(' ', '_')}_{nome_curso.replace(' ', '_')}.pdf"
     os.makedirs("certificados", exist_ok=True)
 
-    gerar_certificado_pdf(nome_professor, nome_formacao, carga_horaria, caminho_arquivo)
+    gerar_certificado_pdf(nome_professor, nome_curso, carga_horaria, caminho_arquivo)
 
     #Atualizar URL no certificado
 
@@ -48,7 +48,6 @@ def criar_certificado():
     db.session.commit()
 
     return jsonify({'message': 'Certificado criado e PDF gerado com sucesso!'}), 201
-
 #Listando certificados
 
 @certificados_bp.route('/certificados', methods=['GET'])
@@ -59,7 +58,7 @@ def listar_certificados():
         resultado.append({
             'id_certificados': cert.id_certificados,
             'professor': cert.professor.nome,
-            'formacao': cert.formacao.nome_formacao,
+            'cursos': cert.curso.nome_curso,
             'status': cert.status,
             'certificado_url': cert.certificado_url,
             'carga_horaria_total': cert.carga_horaria_total
@@ -79,6 +78,8 @@ def atualizar_certificado(id):
     cert.status = dados.get('status', cert.status)
     cert.certificado_url = dados.get('certificado_url', cert.certificado_url)
     db.session.commit()
+
+    print("Certificado criado com ID:", novo_certificado.id_certificados)
 
     return jsonify({'message': 'Certificado atualizado com sucesso!'}), 200
 
@@ -122,7 +123,7 @@ def listar_certificados_por_professor(id):
     for cert in certificados:
         resultado.append({
             'id_certificados': cert.id_certificados,
-            'formacao': cert.formacao.nome_formacao,
+            'cursos': cert.curso.nome_curso,
             'status': cert.status,
             'certificado_url': cert.certificado_url,
             'carga_horaria_total': cert.carga_horaria_total
@@ -130,4 +131,5 @@ def listar_certificados_por_professor(id):
     return jsonify({
         'professor': professor.nome,
         'certificados': resultado
+        
     }), 200

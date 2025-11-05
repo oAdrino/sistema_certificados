@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy 
 
-
 db = SQLAlchemy()  
 
 class Professor(db.Model):
@@ -19,6 +18,7 @@ class Cursos(db.Model):
     nome_curso = db.Column(db.String(100), nullable=False)
     carga_horaria = db.Column(db.Integer, nullable=False)
     palestrante = db.Column(db.String(100), nullable=False)
+    
 
 class Certificados(db.Model):
     __tablename__ = 'certificados'
@@ -28,6 +28,7 @@ class Certificados(db.Model):
     status = db.Column(db.String(20), nullable=False)
     certificado_url = db.Column(db.String(200), nullable=True)
     carga_horaria_total = db.Column(db.Integer, nullable=False)
+    data_realizacao = db.Column(db.Date, nullable=False)
 
 #Relacionamentos
     professor = db.relationship('Professor', backref='certificados')

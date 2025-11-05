@@ -1,8 +1,36 @@
 from flask import Blueprint, request, jsonify
-from models import db, Cursos
+from models import db, Cursos, Certificados, Professor
+from datetime import datetime
 
 cursos_bp = Blueprint('cursos', __name__)
 
+
+# Rota de vinculação de curso a professor
+@cursos_bp.route("/vincular_curso", methods=["POST"])
+def vincular_curso():
+    dados = request.get_json()
+    id_professor = dados.get("id_professor")
+    id_curso = dados.get("id_curso")
+    data_realizacao = dados.get("data_realizacao")
+
+    professor = Professor.query.get(id_professor)
+    curso = Cursos.query.get(id_curso)
+
+    if not professor or not curso:
+        return jsonify({"error": "Professor ou Curso não encontrado"}), 404
+
+    novo_vinculo = Certificados(
+        id_professores=id_professor,  # pyright: ignore[reportCallIssue]
+        id_cursos=id_curso,          # pyright: ignore[reportCallIssue]
+        status="pendente",  # pyright: ignore[reportCallIssue]
+        certificado_url=None,   # pyright: ignore[reportCallIssue]
+        carga_horaria_total=curso.carga_horaria,  # pyright: ignore[reportCallIssue]
+        data_realizacao=datetime.strptime(data_realizacao, "%Y-%m-%d") # pyright: ignore[reportCallIssue]
+    )
+    db.session.add(novo_vinculo)
+    db.session.commit()
+
+    return jsonify({"message": "Curso vinculado ao professor com sucesso."}), 201
 #Criando nova formação
 
 @cursos_bp.route('/cursos', methods=['POST'])

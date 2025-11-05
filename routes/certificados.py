@@ -21,7 +21,7 @@ def criar_certificado():
     
     novo_certificado = Certificados(
         id_professores=dados['id_professores'], # pyright: ignore[reportCallIssue]
-        id_cursos=dados['id_cursos'], # pyright: ignore[reportCallIssue]
+        id_cursos=dados['id_cursos'],   # pyright: ignore[reportCallIssue]
         status=dados.get('status', 'pendente'), # type: ignore
         certificado_url=dados.get('certificado_url', ''), # pyright: ignore[reportCallIssue]
         carga_horaria_total=curso.carga_horaria # pyright: ignore[reportCallIssue]
@@ -33,6 +33,7 @@ def criar_certificado():
         #Gerando PDF do certificado
     nome_professor = professor.nome
     nome_curso = curso.nome_curso
+    cpf = professor.cpf
     carga_horaria = curso.carga_horaria
 
     # Caminho onde o PDF será salvo
@@ -40,7 +41,7 @@ def criar_certificado():
     caminho_arquivo = f"certificados/{nome_professor.replace(' ', '_')}_{nome_curso.replace(' ', '_')}.pdf"
     os.makedirs("certificados", exist_ok=True)
 
-    gerar_certificado_pdf(nome_professor, nome_curso, carga_horaria, caminho_arquivo)
+    gerar_certificado_pdf(nome_professor, cpf, nome_curso, carga_horaria, caminho_arquivo)
 
     #Atualizar URL no certificado
 
@@ -79,8 +80,6 @@ def atualizar_certificado(id):
     cert.certificado_url = dados.get('certificado_url', cert.certificado_url)
     db.session.commit()
 
-    print("Certificado criado com ID:", novo_certificado.id_certificados)
-
     return jsonify({'message': 'Certificado atualizado com sucesso!'}), 200
 
 #Deletando certificado
@@ -112,24 +111,21 @@ def download_certificado(id):
     return send_file(caminho_arquivo, as_attachment=True)
 
 
-@certificados_bp.route('/certificados/professor/<int:id>', methods=['GET'])
-def listar_certificados_por_professor(id):
-    professor = Professor.query.get(id)
-    if not professor:
-        return jsonify({'error': 'Professor não encontrado'}), 404
+@certificados_bp.route('/certificados/<int:id_professor>', methods=['GET'])
+def listar_certificados_por_professor(id_professor):
+    certificados = Certificados.query.filter_by(id_professores=id_professor).all()
+
+    if not certificados:
+        return jsonify({'error': 'Nenhum certificado encontrado para este professor'}), 404
     
-    certificados = Certificados.query.filter_by(id_professores=id).all()
     resultado = []
     for cert in certificados:
         resultado.append({
-            'id_certificados': cert.id_certificados,
-            'cursos': cert.curso.nome_curso,
-            'status': cert.status,
-            'certificado_url': cert.certificado_url,
-            'carga_horaria_total': cert.carga_horaria_total
+            "id_certificado": cert.id_certificados,
+            "nome_curso": cert.curso.nome_curso,
+            "palestrante": cert.curso.palestrante,
+            "carga_horaria": cert.curso.carga_horaria,
+            "data_realizacao": cert.data_realizacao.strftime("%d/%m/%Y"),
+            "status": cert.status
         })
-    return jsonify({
-        'professor': professor.nome,
-        'certificados': resultado
-        
-    }), 200
+    return jsonify(resultado), 200

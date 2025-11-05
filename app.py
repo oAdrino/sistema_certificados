@@ -1,9 +1,9 @@
-from flask import Flask
 from routes.professores import professores_bp
-from models import db
 from routes.cursos import cursos_bp
 from routes.certificados import certificados_bp
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy 
+from models import db
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://oAdrino:250866@localhost:5432/cursos_db'
